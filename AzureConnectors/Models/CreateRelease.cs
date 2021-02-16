@@ -1,9 +1,9 @@
 namespace AzureConnectors.Models
 {
-    public class SendMail
+    public class CreateRelease
     {
-        public string Subject { get; set; }
-        public string Body { get; set; }
-        public string To { get; set; }
+        public string Account { get; set; }
+        public string Project { get; set; }
+        public string ReleaseDefinition { get; set; }
     }
 }

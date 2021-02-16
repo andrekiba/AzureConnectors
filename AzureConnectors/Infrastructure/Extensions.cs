@@ -1,4 +1,12 @@
-$HEADER$namespace $NAMESPACE$
+using System.Text.RegularExpressions;
+
+namespace AzureConnectors.Infrastructure
 {
-  public class $CLASS$ {$END$}
+    public static class Extensions
+    {
+        public static string StripHtml(this string input)
+        {
+            return Regex.Replace(input, "<.*?>", string.Empty);
+        }
+    }
 }

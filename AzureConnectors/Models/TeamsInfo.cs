@@ -1,9 +1,8 @@
 namespace AzureConnectors.Models
 {
-    public class SendMail
+    public class TeamsInfo
     {
-        public string Subject { get; set; }
-        public string Body { get; set; }
-        public string To { get; set; }
+        public string Team { get; set; }
+        public string Channel { get; set; }
     }
 }

@@ -1,30 +1,20 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Azure.Connectors.AzureEventHubs;
+using Azure.Connectors.Office365Outlook;
+using Azure.Connectors.Office365Outlook.Models;
+using AzureConnectors.Infrastructure;
+using AzureConnectors.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Azure.Connectors.MicrosoftTeams;
-using Azure.Connectors.MicrosoftTeams.Models;
-using Azure.Connectors.Office365Outlook;
-using Azure.Connectors.Office365Outlook.Models;
-using Azure.Connectors.TextAnalytics;
-using Azure.Connectors.TextAnalytics.Models;
-using AzureConnectors.Infrastructure;
-using AzureConnectors.Models;
-using HtmlAgilityPack;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Options;
-using Microsoft.Rest.Azure;
-using Microsoft.Rest.TransientFaultHandling;
 using Newtonsoft.Json;
 
-namespace AzureConnectors
+namespace AzureConnectors.Functions
 {
     public class Outlook
     {
@@ -58,17 +48,5 @@ namespace AzureConnectors
                 return new ExceptionResult(e, true);
             }
         }
-        
-        /*
-        [FunctionName("MailApproval")]
-        public Task Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mail/approve/{instanceId:alpha}")]
-            [DurableClient] IDurableOrchestrationClient client,
-            HttpRequest req, ILogger log)
-        {
-            var eventData = null;
-            return client.RaiseEventAsync(instanceId, "EventName", eventData);
-        }
-        */
     }
 }

@@ -1,9 +1,10 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Azure.Connectors.Office365Outlook;
-using Azure.Connectors.Office365Outlook.Models;
+using Azure.Connectors.AzureDevOps;
+using Azure.Connectors.AzureDevOps.Models;
 using AzureConnectors.Infrastructure;
 using AzureConnectors.Models;
 using Microsoft.AspNetCore.Http;
@@ -16,31 +17,38 @@ using Newtonsoft.Json;
 
 namespace AzureConnectors.Functions
 {
-    public class Outlook
+    public class DevOps
     {
         readonly AppOptions options;
 
-        public Outlook(IOptions<AppOptions> options)
+        public DevOps(IOptions<AppOptions> options)
         {
             this.options = options.Value;
         }
         
-        [FunctionName("SendMail")]
-        public async Task<IActionResult> SendMail(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "outlook/sendmail")] HttpRequest req, ILogger log)
+        [FunctionName("CreateRelease")]
+        public async Task<IActionResult> CreateRelease(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "devops/createrelease")] HttpRequest req, ILogger log)
         {
             try
             {
                 var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                var mail = JsonConvert.DeserializeObject<SendMail>(requestBody);
-                var outlookConnector = Office365OutlookConnector.Create(options.OutlookConnection);
-                await outlookConnector.Mail.SendEmailV2Async(new ClientSendHtmlMessage
-                {
-                    Subject = mail.Subject,
-                    Body = mail.Body,
-                    To = mail.To
-                });
-
+                var newRelease = JsonConvert.DeserializeObject<CreateRelease>(requestBody);
+                
+                var devOpsConnector = AzureDevOpsConnector.Create(options.AzureDevOpsConnection);
+                
+                var accounts = await devOpsConnector.VisualStudioTeamServices.ListAccountsAsync();
+                var account = accounts.Value.Single(a => a.AccountName == newRelease.Account);
+                
+                var projects = await devOpsConnector.VisualStudioTeamServices.ListProjectsAsync(account.AccountName);
+                var project = projects.Value.Single(p => p.Name == newRelease.Project);
+                
+                var definitions = await devOpsConnector.VisualStudioTeamServices.ListReleaseDefinitionsAsync(account.AccountName, project.Name);
+                var release = definitions.Value.Single(rd => rd.Name == newRelease.ReleaseDefinition);
+                
+                await devOpsConnector.VisualStudioTeamServices.CreateReleaseAsync(account.AccountName, project.Name,
+                    release.Id.ToString(), new ReleaseStartMetadata("Test from Azure DevOps Connector", true, "Test"));
+                
                 return new OkResult();
             }
             catch (Exception e)

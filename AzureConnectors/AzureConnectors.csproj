@@ -4,7 +4,19 @@
         <AzureFunctionsVersion>V3</AzureFunctionsVersion>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.7"/>
+        <PackageReference Include="Azure.Connectors.AzureDevOps" Version="0.0.4-alpha" />
+        <PackageReference Include="Azure.Connectors.AzureVM" Version="0.0.4-alpha" />
+        <PackageReference Include="Azure.Connectors.LinkedInV2" Version="0.0.4-alpha" />
+        <PackageReference Include="Azure.Connectors.MicrosoftTeams" Version="0.0.4-alpha" />
+        <PackageReference Include="Azure.Connectors.Office365Outlook" Version="0.0.4-alpha" />
+        <PackageReference Include="Azure.Connectors.TextAnalytics" Version="0.0.4-alpha" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.25" />
+        <PackageReference Include="Microsoft.Azure.Connectors.AzureEventHubs" Version="0.0.1-alpha" />
+        <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+        <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.3.0" />
+        <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.3" />
+        <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.9" />
+        <PackageReference Include="System.Text.Json" Version="4.7.2" />
     </ItemGroup>
     <ItemGroup>
         <None Update="host.json">

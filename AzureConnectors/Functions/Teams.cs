@@ -1,24 +1,26 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Azure.Connectors.AzureEventHubs;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Azure.Connectors.MicrosoftTeams;
 using Azure.Connectors.MicrosoftTeams.Models;
 using Azure.Connectors.TextAnalytics;
 using Azure.Connectors.TextAnalytics.Models;
 using AzureConnectors.Infrastructure;
+using AzureConnectors.Models;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Rest.Azure;
 using Microsoft.Rest.TransientFaultHandling;
+using Newtonsoft.Json;
 
-namespace AzureConnectors
+namespace AzureConnectors.Functions
 {
     public class Teams
     {
@@ -31,26 +33,32 @@ namespace AzureConnectors
         
         [FunctionName("Spammer")]
         public async Task<IActionResult> Spammer(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "teams/spammer")] HttpRequest req, ILogger log)
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "teams/spammer")] HttpRequest req, ILogger log)
         {
             try
             {
+                var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                var teamsInfo = JsonConvert.DeserializeObject<TeamsInfo>(requestBody);
+                
                 var teamsConnector = MicrosoftTeamsConnector.Create(options.TeamsConnection);
+                
                 var teams = await teamsConnector.GetAllTeamsAsync();
-                var italy = teams.Value.Single(t => t.DisplayName == "Italy");
-                var channels = await teamsConnector.GetChannelsForGroupAsync(italy.Id);
-                var general = channels.Value.Single(c => c.DisplayName == "General");
-                await teamsConnector.PostMessageToChannelV3Async(italy.Id, general.Id, new PostMessageToChannelV3Body
+                var team = teams.Value.Single(t => t.DisplayName == teamsInfo.Team);
+                
+                var channels = await teamsConnector.GetChannelsForGroupAsync(team.Id);
+                var channel = channels.Value.Single(c => c.DisplayName == teamsInfo.Channel);
+                
+                await teamsConnector.PostMessageToChannelV3Async(team.Id, channel.Id, new PostMessageToChannelV3Body
                 {
-                    Subject = "Spam from Azure Teams Connector :-)",
+                    Subject = "Spam from Teams Connector :-)",
                     Body = new PostMessageToChannelV3BodyBody
                     {
-                        Content = "Good morning Italy!",
+                        Content = $"Good morning {teamsInfo.Team}!",
                         ContentType = "text"
                     }
                 });
 
-                //await teamsConnector.PostChannelAdaptiveCardAsync(general.Id, null);
+                //await teamsConnector.PostChannelAdaptiveCardAsync(team.Id, null);
                 //await teamsConnector.PostUserAdaptiveCardAsync(null);
                 
                 return new OkResult();
@@ -63,10 +71,13 @@ namespace AzureConnectors
         
         [FunctionName("Sentiment")]
         public async Task<IActionResult> Sentiment(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "teams/sentiment")] HttpRequest req, ILogger log)
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "teams/sentiment")] HttpRequest req, ILogger log)
         {
             try
             {
+                var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                var teamsInfo = JsonConvert.DeserializeObject<TeamsInfo>(requestBody);
+                
                 var teamsConnector = MicrosoftTeamsConnector.Create(options.TeamsConnection);
                 
                 var retryStrategy = new FixedIntervalRetryStrategy(2, TimeSpan.FromSeconds(2));
@@ -74,9 +85,9 @@ namespace AzureConnectors
                 teamsConnector.SetRetryPolicy(retryPolicy);
                 
                 var teams = await teamsConnector.GetAllTeamsAsync();
-                var klab = teams.Value.Single(t => t.DisplayName == "KLab");
+                var klab = teams.Value.Single(t => t.DisplayName == teamsInfo.Team);
                 var channels = await teamsConnector.GetChannelsForGroupAsync(klab.Id);
-                var general = channels.Value.Single(c => c.DisplayName == "General");
+                var general = channels.Value.Single(c => c.DisplayName == teamsInfo.Channel);
                 
                 string lastMessage;
                 try
