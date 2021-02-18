@@ -31,10 +31,10 @@ namespace AzureConnectors.Functions
                 var linkedinConnector = LinkedInV2Connector.Create(options.LinkedInConnection);
                 var post = new ShareArticleRequestV2
                 {
-                    Text = new ShareArticleRequestV2Text("Azure Connectors for #Azure #Functions - Live from #RoboGen @cloudgen"),
+                    Text = new ShareArticleRequestV2Text("Azure Connectors for #AzureFunctions - Live from #GlobalPowerPlatformBootcamp"),
                     Content = new ShareArticleRequestV2Content
                     {
-                        ContentUrl = "https://cloudgen.it/robogen-automation-2020/#"
+                        ContentUrl = "https://www.powerplatformbootcamp.com/2021/location-detail/?id=d443a6cb-a912-eb11-8441-0003ffb4cdf8&city=Milano"
                     },
                     Distribution = new ShareArticleRequestV2Distribution
                     {
