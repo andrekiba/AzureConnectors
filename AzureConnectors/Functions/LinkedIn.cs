@@ -22,19 +22,20 @@ namespace AzureConnectors.Functions
             this.options = options.Value;
         }
     
-        [FunctionName("LinkedInTest")]
-        public async Task<IActionResult> LinkedInTest(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "linkedin/test")] HttpRequest req, ILogger log)
+        [FunctionName("CreatePost")]
+        public async Task<IActionResult> CreatePost(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "linkedin/createpost")] HttpRequest req, ILogger log)
         {
             try
             {
                 var linkedinConnector = LinkedInV2Connector.Create(options.LinkedInConnection);
+                
                 var post = new ShareArticleRequestV2
                 {
-                    Text = new ShareArticleRequestV2Text("Azure Connectors for #AzureFunctions - Live from #GlobalPowerPlatformBootcamp"),
+                    Text = new ShareArticleRequestV2Text("Azure Connectors for #AzureFunctions - Live from #ScottishSummit2021"),
                     Content = new ShareArticleRequestV2Content
                     {
-                        ContentUrl = "https://www.powerplatformbootcamp.com/2021/location-detail/?id=d443a6cb-a912-eb11-8441-0003ffb4cdf8&city=Milano"
+                        ContentUrl = "https://scottishsummit.com"
                     },
                     Distribution = new ShareArticleRequestV2Distribution
                     {

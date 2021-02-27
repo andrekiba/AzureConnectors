@@ -50,7 +50,7 @@ namespace AzureConnectors.Functions
                 
                 await teamsConnector.PostMessageToChannelV3Async(team.Id, channel.Id, new PostMessageToChannelV3Body
                 {
-                    Subject = "Spam from Teams Connector :-)",
+                    Subject = "Spam for KLab from #ScottishSummit2021 :-)",
                     Body = new PostMessageToChannelV3BodyBody
                     {
                         Content = $"Good morning {teamsInfo.Team}!",
